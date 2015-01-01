@@ -1,11 +1,44 @@
 require_relative '../test_helper'
 
-class SchemeRTest < Test::Unit::TestCase
+class SchemeTest < Test::Unit::TestCase
   setup do
-    @obj = SchemeR.new
+    @obj = Scheme.new
   end
 
-  def test_eval
-    assert_equal 3, @obj._eval([:+, 1, 2])
+  def test_eval1
+    exp = [:+, 1, 2]
+    assert_equal 3, @obj._eval(exp, $global_env)
+  end
+
+  def test_eval2
+    exp = [:+, [:+, 1, 2], 3]
+    assert_equal 6, @obj._eval(exp, $global_env)
+  end
+
+  def test_lambda1
+    exp = [[:lambda, [:x, :y], [:+, :x, :y]], 3, 2]
+    assert_equal 5, @obj._eval(exp, $global_env)
+  end
+
+  def test_lambda2
+    exp = [[:lambda, [:x], [:+, [[:lambda, [:y], :y], 2], :x]], 1]
+    assert_equal 3, @obj._eval(exp, $global_env)
+  end
+
+  def test_lambda3
+    exp = [[:lambda, [:x], [:+, [[:lambda, [:x], :x], 2], :x]], 1]
+    assert_equal 3, @obj._eval(exp, $global_env)
+  end
+
+  def test_let1
+    exp = [:let, [[:x, 3], [:y, 2]], [:+, :x, :y]]
+    assert_equal 5, @obj._eval(exp, $global_env)
+  end
+
+  def test_let2
+    exp = [:let, [[:x, 3]],
+             [:let, [[:fun, [:lambda, [:y], [:+, :x, :y]]]],
+               [:+ , [:fun, 1], [:fun, 2]]]]
+    assert_equal 9, @obj._eval(exp, $global_env)
   end
 end
