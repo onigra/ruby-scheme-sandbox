@@ -9,8 +9,17 @@ $primitive_fun_env = {
   :== => [:prim, lambda { |x, y| x == y }],
 }
 
+$list_env = {
+  :nil   => [],
+  :null? => [:prim, lambda { |list| null?(list)  }],
+  :cons  => [:prim, lambda { |a, b| cons(a, b)   }],
+  :car   => [:prim, lambda { |list| car(list)    }],
+  :cdr   => [:prim, lambda { |list| cdr(list)    }],
+  :list  => [:prim, lambda { |*list| list(*list) }],
+}
+
 $boolean_env = { true: true, false: false }
-$global_env = [$primitive_fun_env, $boolean_env]
+$global_env = [$list_env, $primitive_fun_env, $boolean_env]
 
 module SchemeR
   module Eval
@@ -61,6 +70,10 @@ module SchemeR
 
     def letrec?(exp)
       exp[0] == :letrec
+    end
+
+    def null?(list)
+      list == []
     end
 
     def primitive_fun?(exp)
@@ -205,6 +218,22 @@ module SchemeR
       let_to_parameters_args_body(exp)
     end
   end
+
+  module Cons
+    def cons(a, b)
+      if not list?(b)
+        raise "Sorry, we haven't implemented yet..."
+      else
+        [a] + b
+      end
+    end
+  end
+
+  module List
+    def list(*list)
+      list
+    end
+  end
 end
 
 class Scheme
@@ -214,5 +243,6 @@ class Scheme
   include SchemeR::Lambda
   include SchemeR::If
   include SchemeR::LetRec
+  include SchemeR::Cons
 end
 
