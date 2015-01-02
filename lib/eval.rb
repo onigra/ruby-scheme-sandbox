@@ -43,7 +43,7 @@ module SchemeR
     def special_form?(exp)
       lambda?(exp) or
          let?(exp) or
-      # letrec?(exp) or
+      letrec?(exp) or
           if?(exp)
     end
 
@@ -59,6 +59,10 @@ module SchemeR
       exp[0] == :if
     end
 
+    def letrec?(exp)
+      exp[0] == :letrec
+    end
+
     def primitive_fun?(exp)
       exp[0] == :prim
     end
@@ -68,8 +72,8 @@ module SchemeR
         eval_lambda(exp, env)
       elsif let?(exp)
         eval_let(exp, env)
-      # elsif letrec?(exp)
-      #  eval_letrec(exp, env)
+      elsif letrec?(exp)
+        eval_letrec(exp, env)
       elsif if?(exp)
         eval_if(exp, env)
       end
@@ -174,6 +178,33 @@ module SchemeR
       [exp[1], exp[2], exp[3]]
     end
   end
+
+  module LetRec
+    def eval_letrec(exp, env)
+      parameters, args, body = letrec_to_parameters_args_body(exp)
+      tmp_env = Hash.new
+
+      parameters.each do |param|
+        tmp_env[param] = :dummy
+      end
+
+      ext_env = extend_env(tmp_env.keys, tmp_env.values, env)
+      args_val = eval_list(args, ext_env)
+      set_extend_env!(parameters, args_val, ext_env)
+      new_exp = [[:lambda, parameters, body]] + args
+      _eval(new_exp, ext_env)
+    end
+
+    def set_extend_env!(parameters, args_val, ext_env)
+      parameters.zip(args_val).each do |param, arg_val|
+        ext_env[0][param] = arg_val
+      end
+    end
+
+    def letrec_to_parameters_args_body(exp)
+      let_to_parameters_args_body(exp)
+    end
+  end
 end
 
 class Scheme
@@ -182,5 +213,6 @@ class Scheme
   include SchemeR::Let
   include SchemeR::Lambda
   include SchemeR::If
+  include SchemeR::LetRec
 end
 

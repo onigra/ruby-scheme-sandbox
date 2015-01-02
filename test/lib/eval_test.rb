@@ -46,4 +46,20 @@ class SchemeTest < Test::Unit::TestCase
     exp = [:if, [:>, 3, 2], 1, 0]
     assert_equal 1, @obj._eval(exp, $global_env)
   end
+
+  def test_letrec1
+    exp = [:let,
+            [[:fact,
+              [:lambda, [:n], [:if, [:<, :n, 1], 1, [:*, :n, [:fact, [:-, :n, 1]]]]]]],
+            [:fact, 0]]
+    assert_equal 1, @obj._eval(exp, $global_env)
+  end
+
+  def test_letrec2
+    exp = [:letrec,
+            [[:fact,
+              [:lambda, [:n], [:if, [:<, :n, 1], 1, [:*, :n, [:fact, [:-, :n, 1]]]]]]],
+            [:fact, 1]]
+    assert_equal 1, @obj._eval(exp, $global_env)
+  end
 end
