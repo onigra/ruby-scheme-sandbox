@@ -104,6 +104,12 @@ module SchemeR
         eval_letrec(exp, env)
       elsif if?(exp)
         eval_if(exp, env)
+      elsif cond?(exp)
+        eval_cond(exp, env)
+      elsif define?(exp)
+        eval_define(exp, env)
+      elsif quote?(exp)
+        eval_quote(exp, env)
       end
     end
 
