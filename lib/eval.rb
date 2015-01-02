@@ -53,7 +53,10 @@ module SchemeR
       lambda?(exp) or
          let?(exp) or
       letrec?(exp) or
-          if?(exp)
+          if?(exp) or
+        cond?(exp) or
+      define?(exp) or
+       quote?(exp)
     end
 
     def lambda?(exp)
@@ -82,6 +85,10 @@ module SchemeR
 
     def cond?(exp)
       exp[0] == :cond
+    end
+
+    def quote?(exp)
+      exp[0] == :quote
     end
 
     def primitive_fun?(exp)
@@ -317,6 +324,12 @@ module SchemeR
         gsub(/\(/, '[').
         gsub(/\)/, ']')
       eval program
+    end
+  end
+
+  module Quote
+    def eval_quote(exp, env)
+      car(cdr exp)
     end
   end
 end
