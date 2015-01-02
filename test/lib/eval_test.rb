@@ -41,4 +41,9 @@ class SchemeTest < Test::Unit::TestCase
                [:+ , [:fun, 1], [:fun, 2]]]]
     assert_equal 9, @obj._eval(exp, $global_env)
   end
+
+  def test_if
+    exp = [:if, [:>, 3, 2], 1, 0]
+    assert_equal 1, @obj._eval(exp, $global_env)
+  end
 end

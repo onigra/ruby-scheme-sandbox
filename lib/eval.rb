@@ -1,10 +1,16 @@
 $primitive_fun_env = {
-  :+ => [:prim, lambda { |x, y| x + y }],
-  :- => [:prim, lambda { |x, y| x - y }],
-  :* => [:prim, lambda { |x, y| x * y }],
+  :+  => [:prim, lambda { |x, y| x +  y }],
+  :-  => [:prim, lambda { |x, y| x -  y }],
+  :*  => [:prim, lambda { |x, y| x *  y }],
+  :>  => [:prim, lambda { |x, y| x >  y }],
+  :>= => [:prim, lambda { |x, y| x >= y }],
+  :<  => [:prim, lambda { |x, y| x <  y }],
+  :<= => [:prim, lambda { |x, y| x >= y }],
+  :== => [:prim, lambda { |x, y| x == y }],
 }
 
-$global_env = [$primitive_fun_env]
+$boolean_env = { true: true, false: false }
+$global_env = [$primitive_fun_env, $boolean_env]
 
 module SchemeR
   module Eval
@@ -35,7 +41,10 @@ module SchemeR
     end
 
     def special_form?(exp)
-      lambda?(exp) or let?(exp)
+      lambda?(exp) or
+         let?(exp) or
+      # letrec?(exp) or
+          if?(exp)
     end
 
     def lambda?(exp)
@@ -44,6 +53,10 @@ module SchemeR
 
     def let?(exp)
       exp[0] == :let
+    end
+
+    def if?(exp)
+      exp[0] == :if
     end
 
     def primitive_fun?(exp)
@@ -55,6 +68,10 @@ module SchemeR
         eval_lambda(exp, env)
       elsif let?(exp)
         eval_let(exp, env)
+      # elsif letrec?(exp)
+      #  eval_letrec(exp, env)
+      elsif if?(exp)
+        eval_if(exp, env)
       end
     end
 
@@ -141,6 +158,22 @@ module SchemeR
       [closure[1], closure[2], closure[3]]
     end
   end
+
+  module If
+    def eval_if(exp, env)
+      cond, true_clause, false_clause = if_to_cond_true_false(exp)
+
+      if _eval(cond, env)
+        _eval(true_clause, env)
+      else
+        _eval(false_clause, env)
+      end
+    end
+
+    def if_to_cond_true_false(exp)
+      [exp[1], exp[2], exp[3]]
+    end
+  end
 end
 
 class Scheme
@@ -148,5 +181,6 @@ class Scheme
   include SchemeR::Functional
   include SchemeR::Let
   include SchemeR::Lambda
+  include SchemeR::If
 end
 
