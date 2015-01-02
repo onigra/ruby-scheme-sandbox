@@ -308,6 +308,17 @@ module SchemeR
       end
     end
   end
+
+  module Parser
+    def parse(exp)
+      program = exp.strip().
+        gsub(/[a-zA-Z\+\-\*><=][0-9a-zA-Z\+\-=!*]*/, ':\\0').
+        gsub(/\s+/, ', ').
+        gsub(/\(/, '[').
+        gsub(/\)/, ']')
+      eval program
+    end
+  end
 end
 
 class Scheme
@@ -320,5 +331,6 @@ class Scheme
   include SchemeR::Cons
   include SchemeR::Define
   include SchemeR::Cond
+  include SchemeR::Parser
 end
 
